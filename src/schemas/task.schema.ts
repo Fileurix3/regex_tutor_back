@@ -15,8 +15,9 @@ export class Task {
     type: [
       {
         testCase: { type: String, required: true },
-        output: { type: String, required: true },
+        output: { type: Boolean, required: true },
         description: { type: String, required: true },
+        _id: false,
       },
     ],
     required: true,
@@ -27,7 +28,8 @@ export class Task {
     type: [
       {
         testCase: { type: String, required: true },
-        output: { type: String, required: true },
+        output: { type: Boolean, required: true },
+        _id: false,
       },
     ],
     required: true,

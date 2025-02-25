@@ -32,23 +32,26 @@ export class TaskController {
     return res.status(201).json(message);
   }
 
-  @Get("get/:taskId")
-  async getTaskById(@Param("taskId") taskId: string, @Res() res: Response) {
-    const message = await this.taskService.getTaskById(taskId);
+  @Get("get/:taskName")
+  async getTaskByName(
+    @Param("taskName") taskName: string,
+    @Res() res: Response,
+  ) {
+    const message = await this.taskService.getTaskByName(taskName);
     return res.status(200).json(message);
   }
 
   @Get("get")
-  async getTasks(@Query() offset: number = 0, @Res() res: Response) {
+  async getTasks(@Query("offset") offset: number = 1, @Res() res: Response) {
     const message = await this.taskService.getTasks(50, offset);
     return res.status(200).json(message);
   }
 
   @UseGuards(AuthGuard)
-  @Post("submit/:taskId")
+  @Post("submit/:taskName")
   async submitTask(
     @Body("submitRegex") submitRegex: string,
-    @Param("taskId") taskId: string,
+    @Param("taskName") taskName: string,
     @Req() req: Request,
     @Res() res: Response,
   ) {
@@ -56,7 +59,7 @@ export class TaskController {
     const message = await this.taskService.submitTask(
       userToken,
       submitRegex,
-      taskId,
+      taskName,
     );
 
     return res.status(200).json(message);
