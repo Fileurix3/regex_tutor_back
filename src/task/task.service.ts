@@ -5,14 +5,16 @@ import {
 } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Task, TaskDocument } from "src/schemas/task.schema";
-import { Model } from "mongoose";
+import { Model, Types } from "mongoose";
 import { TaskDto } from "./dto/task.dto";
 import { JwtService } from "@nestjs/jwt";
+import { User } from "src/schemas/user.schema";
 
 @Injectable()
 export class TaskService {
   constructor(
     @InjectModel(Task.name) private taskModel: Model<Task>,
+    @InjectModel(User.name) private userModel: Model<User>,
     private jwtService: JwtService,
   ) {}
 
@@ -52,17 +54,47 @@ export class TaskService {
     return { task };
   }
 
-  async getTasks(limit: number, offset: number) {
+  async getTasks(limit: number, offset: number, userToken: string) {
     if (offset < 1) {
       throw new BadRequestException("Offset can't be less than 1");
     }
 
+    const userId: string | undefined = this.jwtService.verify(userToken).userId;
     const skip = (offset - 1) * limit;
 
-    const tasks: TaskDocument[] = await this.taskModel
-      .find({}, { _id: 1, name: 1, description: 1 })
-      .skip(skip)
-      .limit(limit);
+    let tasks: TaskDocument[];
+
+    if (!userId) {
+      tasks = await this.taskModel
+        .find({}, { _id: 1, name: 1, description: 1, createdAt: 1 })
+        .skip(skip)
+        .limit(limit);
+    } else {
+      const solvedUserTasks = await this.userModel
+        .findById(userId)
+        .select("solvedTasks");
+
+      tasks = await this.taskModel.aggregate([
+        {
+          $addFields: {
+            isSolved: {
+              $in: ["$_id", solvedUserTasks!.solvedTasks],
+            },
+          },
+        },
+        { $skip: skip },
+        { $limit: limit },
+        {
+          $project: {
+            _id: 1,
+            name: 1,
+            description: 1,
+            isSolved: 1,
+            createdAt: 1,
+          },
+        },
+      ]);
+    }
 
     const totalTasks: number = await this.taskModel.countDocuments();
 
@@ -104,12 +136,17 @@ export class TaskService {
       }
     }
 
+    await this.userModel.updateOne(
+      { _id: userId },
+      { $addToSet: { solvedTasks: task._id } },
+    );
+
     return { message: "Task has been successfully completed" };
   }
 
-  async getTaskWithAllTestCasesById(taskId: string) {}
+  async getTaskWithAllTestCasesByName(taskName: string) {}
 
-  async deleteTask(taskId: string) {}
+  async deleteTask(taskName: string) {}
 
   async updateTask(taskDto: TaskDto, taskId: string) {}
 }

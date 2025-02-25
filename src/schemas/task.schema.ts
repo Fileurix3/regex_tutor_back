@@ -5,7 +5,13 @@ export type TaskDocument = HydratedDocument<Task>;
 
 @Schema({ timestamps: true })
 export class Task {
-  @Prop({ type: String, unique: true, required: true })
+  @Prop({
+    type: String,
+    unique: true,
+    required: true,
+    maxlength: 50,
+    minlength: 3,
+  })
   name: string;
 
   @Prop({ type: String, required: true })

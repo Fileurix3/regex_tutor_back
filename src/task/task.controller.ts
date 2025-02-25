@@ -42,8 +42,13 @@ export class TaskController {
   }
 
   @Get("get")
-  async getTasks(@Query("offset") offset: number = 1, @Res() res: Response) {
-    const message = await this.taskService.getTasks(50, offset);
+  async getTasks(
+    @Query("offset") offset: number = 1,
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
+    const userToken = req.cookies.token;
+    const message = await this.taskService.getTasks(50, offset, userToken);
     return res.status(200).json(message);
   }
 
@@ -67,32 +72,33 @@ export class TaskController {
 
   @UseGuards(AuthGuard)
   @UseGuards(IsAdminGuard)
-  @Get("get/all/testCases/:taskId")
+  @Get("get/all/testCases/:taskName")
   async getTaskWithAllTestCasesById(
-    @Param("taskId") taskId: string,
+    @Param("taskName") taskName: string,
     @Res() res: Response,
   ) {
-    const message = await this.taskService.getTaskWithAllTestCasesById(taskId);
+    const message =
+      await this.taskService.getTaskWithAllTestCasesByName(taskName);
     return res.status(200).json(message);
   }
 
   @UseGuards(AuthGuard)
   @UseGuards(IsAdminGuard)
-  @Delete("delete/:taskId")
-  async deleteTask(@Param("taskId") taskId: string, @Res() res: Response) {
-    const message = await this.taskService.deleteTask(taskId);
+  @Delete("delete/:taskName")
+  async deleteTask(@Param("taskName") taskName: string, @Res() res: Response) {
+    const message = await this.taskService.deleteTask(taskName);
     return res.status(200).json(message);
   }
 
   @UseGuards(AuthGuard)
   @UseGuards(IsAdminGuard)
-  @Put("update/:taskId")
+  @Put("update/:taskName")
   async updateTask(
     @Body() taskDto: TaskDto,
-    @Param("taskId") taskId: string,
+    @Param("taskName") taskName: string,
     @Res() res: Response,
   ) {
-    const message = await this.taskService.updateTask(taskDto, taskId);
+    const message = await this.taskService.updateTask(taskDto, taskName);
     return res.status(200).json(message);
   }
 }
