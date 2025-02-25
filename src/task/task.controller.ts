@@ -84,21 +84,13 @@ export class TaskController {
 
   @UseGuards(AuthGuard)
   @UseGuards(IsAdminGuard)
-  @Delete("delete/:taskName")
-  async deleteTask(@Param("taskName") taskName: string, @Res() res: Response) {
-    const message = await this.taskService.deleteTask(taskName);
-    return res.status(200).json(message);
-  }
-
-  @UseGuards(AuthGuard)
-  @UseGuards(IsAdminGuard)
-  @Put("update/:taskName")
-  async updateTask(
+  @Put("update/:taskId")
+  async updateTaskById(
     @Body() taskDto: TaskDto,
-    @Param("taskName") taskName: string,
+    @Param("taskId") taskId: string,
     @Res() res: Response,
   ) {
-    const message = await this.taskService.updateTask(taskDto, taskName);
+    const message = await this.taskService.updateTask(taskDto, taskId);
     return res.status(200).json(message);
   }
 }

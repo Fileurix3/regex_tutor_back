@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Task, TaskDocument } from "src/schemas/task.schema";
@@ -59,12 +60,15 @@ export class TaskService {
       throw new BadRequestException("Offset can't be less than 1");
     }
 
-    const userId: string | undefined = this.jwtService.verify(userToken).userId;
-    const skip = (offset - 1) * limit;
+    const userId: string | null = userToken
+      ? this.getUserIdFromJwt(userToken)
+      : null;
+
+    const skip: number = (offset - 1) * limit;
 
     let tasks: TaskDocument[];
 
-    if (!userId) {
+    if (userId == null) {
       tasks = await this.taskModel
         .find({}, { _id: 1, name: 1, description: 1, createdAt: 1 })
         .skip(skip)
@@ -111,7 +115,7 @@ export class TaskService {
       throw new BadRequestException("Submit regex is required");
     }
 
-    const userId: string = this.jwtService.verify(userToken).userId;
+    const userId: string = this.getUserIdFromJwt(userToken);
     const regex: RegExp = new RegExp(submitRegex);
     const task: TaskDocument | null = await this.taskModel.findOne({
       name: taskName,
@@ -144,9 +148,36 @@ export class TaskService {
     return { message: "Task has been successfully completed" };
   }
 
-  async getTaskWithAllTestCasesByName(taskName: string) {}
+  async getTaskWithAllTestCasesByName(taskName: string) {
+    const task: TaskDocument | null = await this.taskModel.findOne({
+      name: taskName,
+    });
 
-  async deleteTask(taskName: string) {}
+    if (task == null) {
+      throw new NotFoundException("Task not found");
+    }
 
-  async updateTask(taskDto: TaskDto, taskId: string) {}
+    return { task: task };
+  }
+
+  async updateTask(taskDto: TaskDto, taskId: string) {
+    const task: TaskDocument | null = await this.taskModel.findById(taskId);
+
+    if (task == null) {
+      throw new NotFoundException("Task not found");
+    }
+
+    await this.taskModel.updateOne({ _id: taskId }, taskDto);
+
+    return { message: "Task has been successfully updated" };
+  }
+
+  private getUserIdFromJwt(token: string): string {
+    try {
+      const { userId } = this.jwtService.verify(token);
+      return userId;
+    } catch {
+      throw new UnauthorizedException("Unauthorized");
+    }
+  }
 }
