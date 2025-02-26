@@ -42,11 +42,7 @@ export class TaskController {
 
   @Get("get")
   @HttpCode(200)
-  async getTasks(
-    @Query("offset") offset: number = 1,
-    @Req() req: Request,
-    @Res() res: Response,
-  ) {
+  async getTasks(@Query("offset") offset: number = 1, @Req() req: Request) {
     const userToken = req.cookies.token;
     const message = await this.taskService.getTasks(50, offset, userToken);
     return message;
@@ -54,7 +50,7 @@ export class TaskController {
 
   @UseGuards(AuthGuard)
   @Post("submit/:taskName")
-  @HttpCode(200)
+  @HttpCode(202)
   async submitTask(
     @Body("submitRegex") submitRegex: string,
     @Param("taskName") taskName: string,
