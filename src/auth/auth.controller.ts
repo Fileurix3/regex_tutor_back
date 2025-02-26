@@ -18,24 +18,21 @@ export class AuthController {
 
   @UsePipes(ValidationPipe)
   @Post("/register")
-  @HttpCode(201)
   async register(@Body() authDto: AuthDto, @Res() res: Response) {
     const message = await this.authService.register(authDto, res);
-    return message;
+    return res.status(201).json(message);
   }
 
   @UsePipes(ValidationPipe)
   @Post("/login")
-  @HttpCode(200)
   async login(@Body() authDto: AuthDto, @Res() res: Response) {
     const message = await this.authService.login(authDto, res);
-    return message;
+    return res.status(200).json(message);
   }
 
   @Get("/logout")
-  @HttpCode(200)
   async logout(@Res() res: Response) {
     const message = await this.authService.logout(res);
-    return message;
+    return res.status(200).json(message);
   }
 }

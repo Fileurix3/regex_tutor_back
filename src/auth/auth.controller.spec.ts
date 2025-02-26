@@ -55,7 +55,8 @@ describe("AuthController", () => {
     );
 
     expect(authService.register).toHaveBeenCalledWith(authDto, mockRes);
-    expect(response).toEqual(result);
+    expect(mockRes.status).toHaveBeenCalledWith(201);
+    expect(mockRes.json).toHaveBeenCalledWith(result);
   });
 
   it("POST /auth/login - must call the AuthService login method and return correct data", async () => {
@@ -64,19 +65,21 @@ describe("AuthController", () => {
 
     jest.spyOn(authService, "login").mockResolvedValueOnce(result as any);
 
-    const response = await authController.login(authDto, mockRes as Response);
+    await authController.login(authDto, mockRes as Response);
 
     expect(authService.login).toHaveBeenCalledWith(authDto, mockRes);
-    expect(response).toEqual(result);
+    expect(mockRes.status).toHaveBeenCalledWith(200);
+    expect(mockRes.json).toHaveBeenCalledWith(result);
   });
 
   it("POST /auth/logout - must call the AuthService logout method and return correct data", async () => {
     const result = { message: "logout successfully" };
     jest.spyOn(authService, "logout").mockResolvedValueOnce(result as any);
 
-    const response = await authController.logout(mockRes as Response);
+    await authController.logout(mockRes as Response);
 
     expect(authService.logout).toHaveBeenCalledWith(mockRes);
-    expect(response).toEqual(result);
+    expect(mockRes.status).toHaveBeenCalledWith(200);
+    expect(mockRes.json).toHaveBeenCalledWith(result);
   });
 });
