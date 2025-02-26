@@ -14,7 +14,7 @@ export class User {
   @Prop({ type: String, required: true })
   password: string;
 
-  @Prop({ type: [Types.ObjectId], ref: "tasks", default: [] })
+  @Prop({ type: [Types.ObjectId], ref: "Task", default: [] })
   solvedTasks: Types.ObjectId[];
 
   @Prop({ required: true, default: "User" })

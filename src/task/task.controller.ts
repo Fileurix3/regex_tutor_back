@@ -8,14 +8,13 @@ import {
   Put,
   Query,
   Req,
-  Res,
   UseGuards,
   UsePipes,
   ValidationPipe,
 } from "@nestjs/common";
 import { TaskService } from "./task.service";
 import { AuthGuard } from "../guards/auth.guard";
-import { Request, Response } from "express";
+import { Request } from "express";
 import { TaskDto } from "./dto/task.dto";
 import { IsAdminGuard } from "../guards/is_admin.guard";
 
