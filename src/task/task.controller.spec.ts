@@ -6,6 +6,8 @@ import { JwtService } from "@nestjs/jwt";
 import { User } from "../schemas/user.schema";
 import { getModelToken } from "@nestjs/mongoose";
 import { TaskDto } from "./dto/task.dto";
+import { NotFoundError } from "rxjs";
+import { NotFoundException } from "@nestjs/common";
 
 describe("TaskController", () => {
   let taskController: TaskController;
@@ -58,25 +60,6 @@ describe("TaskController", () => {
 
   afterEach(() => {
     jest.clearAllMocks();
-  });
-
-  it("if the user does not have a token", async () => {
-    const taskDto: TaskDto = {
-      name: "Task 1",
-      description: "Description of task 1",
-      exampleTestCases: [],
-      testCases: [],
-    };
-
-    const result = { message: "Task has been created successfully" };
-
-    jest.spyOn(taskService, "createTask").mockResolvedValueOnce(result as any);
-
-    await taskController.createTask(taskDto, mockRes as Response);
-
-    expect(taskService.createTask).toHaveBeenCalledWith(taskDto);
-    expect(mockRes.status).toHaveBeenCalledWith(201);
-    expect(mockRes.json).toHaveBeenCalledWith(result);
   });
 
   it("POST /task/create - should call TaskService.createTask and return correct data", async () => {
