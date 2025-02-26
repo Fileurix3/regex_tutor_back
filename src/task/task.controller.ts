@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  HttpCode,
   Param,
   Post,
   Put,
@@ -26,21 +27,21 @@ export class TaskController {
   @UseGuards(IsAdminGuard)
   @UsePipes(ValidationPipe)
   @Post("create")
-  async createTask(@Body() taskDto: TaskDto, @Res() res: Response) {
+  @HttpCode(201)
+  async createTask(@Body() taskDto: TaskDto) {
     const message = await this.taskService.createTask(taskDto);
-    return res.status(201).json(message);
+    return message;
   }
 
   @Get("get/:taskName")
-  async getTaskByName(
-    @Param("taskName") taskName: string,
-    @Res() res: Response,
-  ) {
+  @HttpCode(200)
+  async getTaskByName(@Param("taskName") taskName: string) {
     const message = await this.taskService.getTaskByName(taskName);
-    return res.status(200).json(message);
+    return message;
   }
 
   @Get("get")
+  @HttpCode(200)
   async getTasks(
     @Query("offset") offset: number = 1,
     @Req() req: Request,
@@ -48,16 +49,16 @@ export class TaskController {
   ) {
     const userToken = req.cookies.token;
     const message = await this.taskService.getTasks(50, offset, userToken);
-    return res.status(200).json(message);
+    return message;
   }
 
   @UseGuards(AuthGuard)
   @Post("submit/:taskName")
+  @HttpCode(200)
   async submitTask(
     @Body("submitRegex") submitRegex: string,
     @Param("taskName") taskName: string,
     @Req() req: Request,
-    @Res() res: Response,
   ) {
     const userToken: string = req.cookies.token;
     const message = await this.taskService.submitTask(
@@ -66,30 +67,28 @@ export class TaskController {
       taskName,
     );
 
-    return res.status(200).json(message);
+    return message;
   }
 
   @UseGuards(AuthGuard)
-  //@UseGuards(IsAdminGuard)
+  @UseGuards(IsAdminGuard)
   @Get("get/all/testCases/:taskName")
-  async getTaskWithAllTestCasesById(
-    @Param("taskName") taskName: string,
-    @Res() res: Response,
-  ) {
+  @HttpCode(200)
+  async getTaskWithAllTestCasesById(@Param("taskName") taskName: string) {
     const message =
       await this.taskService.getTaskWithAllTestCasesByName(taskName);
-    return res.status(200).json(message);
+    return message;
   }
 
   @UseGuards(AuthGuard)
-  //@UseGuards(IsAdminGuard)
+  @UseGuards(IsAdminGuard)
   @Put("update/:taskId")
+  @HttpCode(200)
   async updateTaskById(
     @Body() taskDto: TaskDto,
     @Param("taskId") taskId: string,
-    @Res() res: Response,
   ) {
     const message = await this.taskService.updateTask(taskDto, taskId);
-    return res.status(200).json(message);
+    return message;
   }
 }

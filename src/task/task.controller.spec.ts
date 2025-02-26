@@ -6,8 +6,6 @@ import { JwtService } from "@nestjs/jwt";
 import { User } from "../schemas/user.schema";
 import { getModelToken } from "@nestjs/mongoose";
 import { TaskDto } from "./dto/task.dto";
-import { NotFoundError } from "rxjs";
-import { NotFoundException } from "@nestjs/common";
 
 describe("TaskController", () => {
   let taskController: TaskController;
