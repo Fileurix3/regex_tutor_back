@@ -42,9 +42,9 @@ export class TaskService {
     };
   }
 
-  async getTaskByName(taskName: string) {
+  async getTaskById(taskId: string) {
     const task: TaskDocument | null = await this.taskModel.findOne(
-      { name: taskName },
+      { _id: taskId },
       { _id: 1, name: 1, description: 1, exampleTestCases: 1 },
     );
 
@@ -110,7 +110,7 @@ export class TaskService {
     };
   }
 
-  async submitTask(userToken: string, submitRegex: string, taskName: string) {
+  async submitTask(userToken: string, submitRegex: string, taskId: string) {
     if (!submitRegex) {
       throw new BadRequestException("Submit regex is required");
     }
@@ -118,7 +118,7 @@ export class TaskService {
     const userId: string = this.getUserIdFromJwt(userToken);
     const regex: RegExp = new RegExp(submitRegex);
     const task: TaskDocument | null = await this.taskModel.findOne({
-      name: taskName,
+      _id: taskId,
     });
 
     if (task == null) {
@@ -148,9 +148,9 @@ export class TaskService {
     return { message: "Task has been successfully completed" };
   }
 
-  async getTaskWithAllTestCasesByName(taskName: string) {
+  async getTaskWithAllTestCasesById(taskId: string) {
     const task: TaskDocument | null = await this.taskModel.findOne({
-      name: taskName,
+      _id: taskId,
     });
 
     if (task == null) {

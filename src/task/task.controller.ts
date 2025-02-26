@@ -32,10 +32,10 @@ export class TaskController {
     return message;
   }
 
-  @Get("get/:taskName")
+  @Get("get/:taskId")
   @HttpCode(200)
-  async getTaskByName(@Param("taskName") taskName: string) {
-    const message = await this.taskService.getTaskByName(taskName);
+  async getTaskByName(@Param("taskId") taskId: string) {
+    const message = await this.taskService.getTaskById(taskId);
     return message;
   }
 
@@ -48,18 +48,18 @@ export class TaskController {
   }
 
   @UseGuards(AuthGuard)
-  @Post("submit/:taskName")
+  @Post("submit/:taskId")
   @HttpCode(202)
   async submitTask(
     @Body("submitRegex") submitRegex: string,
-    @Param("taskName") taskName: string,
+    @Param("taskId") taskId: string,
     @Req() req: Request,
   ) {
     const userToken: string = req.cookies.token;
     const message = await this.taskService.submitTask(
       userToken,
       submitRegex,
-      taskName,
+      taskId,
     );
 
     return message;
@@ -67,11 +67,10 @@ export class TaskController {
 
   @UseGuards(AuthGuard)
   @UseGuards(IsAdminGuard)
-  @Get("get/all/testCases/:taskName")
+  @Get("get/all/testCases/:taskId")
   @HttpCode(200)
-  async getTaskWithAllTestCasesById(@Param("taskName") taskName: string) {
-    const message =
-      await this.taskService.getTaskWithAllTestCasesByName(taskName);
+  async getTaskWithAllTestCasesById(@Param("taskId") taskId: string) {
+    const message = await this.taskService.getTaskWithAllTestCasesById(taskId);
     return message;
   }
 

@@ -30,10 +30,10 @@ describe("TaskController", () => {
           provide: TaskService,
           useValue: {
             createTask: jest.fn(),
-            getTaskByName: jest.fn(),
+            getTaskById: jest.fn(),
             getTasks: jest.fn(),
             submitTask: jest.fn(),
-            getTaskWithAllTestCasesByName: jest.fn(),
+            getTaskWithAllTestCasesById: jest.fn(),
             updateTask: jest.fn(),
           },
         },
@@ -78,8 +78,8 @@ describe("TaskController", () => {
     expect(response).toEqual(result);
   });
 
-  it("GET /task/get/:taskName - should call TaskService.getTaskByName and return correct data", async () => {
-    const taskName: string = "Task 1";
+  it("GET /task/get/:taskId - should call TaskService.getTaskByName and return correct data", async () => {
+    const taskId: string = "Task 1";
     const result = {
       task: {
         name: "Task 1",
@@ -88,13 +88,11 @@ describe("TaskController", () => {
       },
     };
 
-    jest
-      .spyOn(taskService, "getTaskByName")
-      .mockResolvedValueOnce(result as any);
+    jest.spyOn(taskService, "getTaskById").mockResolvedValueOnce(result as any);
 
-    const response = await taskController.getTaskByName(taskName);
+    const response = await taskController.getTaskByName(taskId);
 
-    expect(taskService.getTaskByName).toHaveBeenCalledWith(taskName);
+    expect(taskService.getTaskById).toHaveBeenCalledWith(taskId);
     expect(response).toEqual(result);
   });
 
@@ -121,9 +119,9 @@ describe("TaskController", () => {
     expect(response).toEqual(result);
   });
 
-  it("POST /task/submit/:taskName - should call TaskService.submitTask and return correct data", async () => {
+  it("POST /task/submit/:taskId - should call TaskService.submitTask and return correct data", async () => {
     const submitRegex: string = "someRegex";
-    const taskName: string = "Task 1";
+    const taskId: string = "Task 1";
     const userToken: string = mockReq.cookies!.token;
     const result = { message: "Task has been successfully completed" };
 
@@ -131,31 +129,31 @@ describe("TaskController", () => {
 
     const response = await taskController.submitTask(
       submitRegex,
-      taskName,
+      taskId,
       mockReq as Request,
     );
 
     expect(taskService.submitTask).toHaveBeenCalledWith(
       userToken,
       submitRegex,
-      taskName,
+      taskId,
     );
 
     expect(response).toEqual(result);
   });
 
-  it("GET /task/get/all/testCases/:taskName - should call TaskService.getTaskWithAllTestCasesByName and return correct data", async () => {
-    const taskName: string = "Task 1";
+  it("GET /task/get/all/testCases/:taskId - should call TaskService.getTaskWithAllTestCasesByName and return correct data", async () => {
+    const taskId: string = "Task 1";
     const result = { task: { name: "Task 1", testCases: [] } };
 
     jest
-      .spyOn(taskService, "getTaskWithAllTestCasesByName")
+      .spyOn(taskService, "getTaskWithAllTestCasesById")
       .mockResolvedValueOnce(result as any);
 
-    const response = await taskController.getTaskWithAllTestCasesById(taskName);
+    const response = await taskController.getTaskWithAllTestCasesById(taskId);
 
-    expect(taskService.getTaskWithAllTestCasesByName).toHaveBeenCalledWith(
-      taskName,
+    expect(taskService.getTaskWithAllTestCasesById).toHaveBeenCalledWith(
+      taskId,
     );
 
     expect(response).toEqual(result);
