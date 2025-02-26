@@ -74,7 +74,8 @@ export class UserController {
   @HttpCode(200)
   async deleteAccount(@Req() req: Request) {
     const userToken = req.cookies.token;
-    const message = await this.userService.deleteAccount(userToken);
+    const { password } = req.body;
+    const message = await this.userService.deleteAccount(userToken, password);
     return message;
   }
 }

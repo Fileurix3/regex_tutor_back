@@ -14,6 +14,7 @@ describe("AuthController", () => {
   beforeEach(async () => {
     mockReq = {
       cookies: { token: "someToken" },
+      body: { password: "password" },
     } as unknown as Request;
 
     const module: TestingModule = await Test.createTestingModule({
@@ -154,6 +155,7 @@ describe("AuthController", () => {
 
     expect(userService.deleteAccount).toHaveBeenCalledWith(
       mockReq.cookies!.token,
+      mockReq.body!.password,
     );
     expect(response).toEqual(result);
   });

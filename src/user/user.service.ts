@@ -20,9 +20,9 @@ export class UserService {
     private jwtService: JwtService,
   ) {}
 
-  async getUserProfileById(userName: string) {
+  async getUserProfileById(userId: string) {
     const user: UserDocument | null = await this.userModel
-      .findOne({ name: userName }, { password: 0, __v: 0 })
+      .findOne({ _id: userId }, { password: 0, __v: 0 })
       .populate("solvedTasks", "_id name")
       .exec();
 
@@ -118,8 +118,24 @@ export class UserService {
     return { message: "Password has been successfully updated" };
   }
 
-  async deleteAccount(userToken: string) {
+  async deleteAccount(userToken: string, password: string | undefined) {
+    if (!password) {
+      throw new BadRequestException("Password is required");
+    }
+
     const userId: string = this.getUserIdFromJwt(userToken);
+
+    const user: UserDocument | null = await this.userModel.findById(userId);
+
+    if (user == null) {
+      throw new NotFoundException("User not found");
+    }
+
+    const hashPassword: boolean = await bcrypt.compare(password, user.password);
+
+    if (!hashPassword) {
+      throw new BadRequestException("Invalid password");
+    }
 
     await this.userModel.deleteOne({ _id: userId });
 
