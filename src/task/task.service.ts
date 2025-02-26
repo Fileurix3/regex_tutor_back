@@ -5,11 +5,11 @@ import {
   UnauthorizedException,
 } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
-import { Task, TaskDocument } from "src/schemas/task.schema";
+import { Task, TaskDocument } from "../schemas/task.schema";
 import { Model, Types } from "mongoose";
 import { TaskDto } from "./dto/task.dto";
 import { JwtService } from "@nestjs/jwt";
-import { User } from "src/schemas/user.schema";
+import { User } from "../schemas/user.schema";
 
 @Injectable()
 export class TaskService {

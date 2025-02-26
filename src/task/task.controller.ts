@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  Delete,
   Get,
   Param,
   Post,
@@ -14,10 +13,10 @@ import {
   ValidationPipe,
 } from "@nestjs/common";
 import { TaskService } from "./task.service";
-import { AuthGuard } from "src/guards/auth.guard";
+import { AuthGuard } from "../guards/auth.guard";
 import { Request, Response } from "express";
 import { TaskDto } from "./dto/task.dto";
-import { IsAdminGuard } from "src/guards/is_admin.guard";
+import { IsAdminGuard } from "../guards/is_admin.guard";
 
 @Controller("task")
 export class TaskController {
@@ -71,7 +70,7 @@ export class TaskController {
   }
 
   @UseGuards(AuthGuard)
-  @UseGuards(IsAdminGuard)
+  //@UseGuards(IsAdminGuard)
   @Get("get/all/testCases/:taskName")
   async getTaskWithAllTestCasesById(
     @Param("taskName") taskName: string,
@@ -83,7 +82,7 @@ export class TaskController {
   }
 
   @UseGuards(AuthGuard)
-  @UseGuards(IsAdminGuard)
+  //@UseGuards(IsAdminGuard)
   @Put("update/:taskId")
   async updateTaskById(
     @Body() taskDto: TaskDto,
