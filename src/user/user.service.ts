@@ -21,8 +21,12 @@ export class UserService {
   ) {}
 
   async getUserProfileById(userId: string) {
+    if (!Types.ObjectId.isValid(userId)) {
+      throw new BadRequestException("Invalid user id");
+    }
+
     const user: UserDocument | null = await this.userModel
-      .findOne({ _id: userId }, { password: 0, __v: 0 })
+      .findById(userId, { password: 0, __v: 0 })
       .populate("solvedTasks", "_id name")
       .exec();
 
@@ -113,7 +117,7 @@ export class UserService {
 
     const hashPassword = await bcrypt.hash(newPassword, 10);
 
-    await this.userModel.updateOne({ id: userId }, { password: hashPassword });
+    await this.userModel.findByIdAndUpdate(userId, { password: hashPassword });
 
     return { message: "Password has been successfully updated" };
   }
