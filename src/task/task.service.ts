@@ -45,7 +45,14 @@ export class TaskService {
   async getTaskById(taskId: string) {
     const task: TaskDocument | null = await this.taskModel.findOne(
       { _id: taskId },
-      { _id: 1, name: 1, description: 1, exampleTestCases: 1 },
+      {
+        _id: 1,
+        name: 1,
+        description: 1,
+        exampleTestCases: 1,
+        createdAt: 1,
+        updatedAt: 1,
+      },
     );
 
     if (task == null) {
@@ -131,12 +138,12 @@ export class TaskService {
       const passed: boolean = regex.test(testCases[i].testCase);
 
       if (passed != Boolean(testCases[i].output)) {
-        return {
+        throw new BadRequestException({
           message: "Test case failed",
           testCase: testCases[i].testCase,
           output: passed,
           expected: testCases[i].output,
-        };
+        });
       }
     }
 

@@ -1,0 +1,645 @@
+openapi: 3.0.3
+info:
+  title: regex_tutor_back api documentation
+
+servers:
+  - url: "http://localhost:3000"
+
+tags:
+  - name: auth
+    description: auth
+
+  - name: task
+    description: tasks
+
+  - name: user
+    description: users
+
+paths:
+  /auth/register:
+    post:
+      tags:
+        - auth
+      summary: register a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                email:
+                  type: string
+                  example: "example@example.com"
+                name:
+                  type: string
+                  example: "example name"
+                password:
+                  type: string
+                  example: "example password"
+      responses:
+        201:
+          description: register successfully
+          content:
+            application/json:
+              schema:
+                properties:
+                  massage:
+                    type: string
+                    example: "User has been successfully registered"
+
+  /auth/login:
+    post:
+      tags:
+        - auth
+      summary: login a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                email:
+                  type: string
+                  example: "example@example.com"
+                password:
+                  type: string
+                  example: "example password"
+      responses:
+        200:
+          description: login successfully
+          content:
+            application/json:
+              schema:
+                properties:
+                  massage:
+                    type: string
+                    example: "Login has been successfully"
+
+  /auth/logout:
+    get:
+      tags:
+        - auth
+      summary: logout a user
+      responses:
+        200:
+          description: logout successfully
+          content:
+            application/json:
+              schema:
+                properties:
+                  massage:
+                    type: string
+                    example: "logout successfully"
+
+  /task/create:
+    post:
+      tags:
+        - task
+      summary: create new task
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                name:
+                  type: string
+                  example: "Email address verification"
+                description:
+                  type: string
+                  example: "Write a regular expression that checks if an email address is correct"
+                exampleTestCases:
+                  type: array
+                  example:
+                    - testCase: "email@example.com"
+                      output: "true"
+                      description: "thi email is valid"
+                    - testCase: "email@.com"
+                      output: "true"
+                      description: "thi email is invalid"
+                testCases:
+                  type: array
+                  example:
+                    - testCase: "test@example.com"
+                      output: true
+                    - testCase: "testexample.com"
+                      output: false
+                    - testCase: "test@.com"
+                      output: false
+                    - testCase: "test@exapmle"
+                      output: false
+                    - testCase: "123testEmail@exapmle.com"
+                      output: true
+                    - testCase: "test@exapmle.a"
+                      output: false
+                    - testCase: "test@exapmle.aaaaaaaaaaaaa"
+                      output: false
+                    - testCase: "@exapmle.com"
+                      output: false
+      responses:
+        201:
+          description: Task has been created successfully
+          content:
+            application/json:
+              schema:
+                properties:
+                  massage:
+                    type: string
+                    example: "Task has been created successfully"
+        403:
+          description: only a user with the Admin role can create a new task
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+                    example: You don't have enough rights
+
+  /task/get/{taskId}:
+    get:
+      tags:
+        - task
+      summary: get task by id
+      parameters:
+        - name: taskId
+          in: path
+          description: "taskId"
+          required: true
+          schema:
+            type: string
+            format: taskId
+      responses:
+        200:
+          description: get the task successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  task:
+                    type: object
+                    properties:
+                      _id:
+                        type: string
+                        example: "taskId"
+                      name:
+                        type: string
+                        example: "Email address verification"
+                      description:
+                        type: string
+                        example: "Write a regular expression that checks if an email address is correct"
+                      createdAt:
+                        type: string
+                        format: date-time
+                        example: "2021-01-01T12:00:00Z"
+                      updatedAt:
+                        type: string
+                        format: date-time
+                        example: "2021-01-01T12:00:00Z"
+                      exampleTestCases:
+                        type: array
+                        example:
+                          - testCase: "email@example.com"
+                            output: true
+                            description: "thi email is valid"
+                          - testCase: "email@.com"
+                            output: true
+                            description: "thi email is invalid"
+
+  /task/get:
+    get:
+      tags:
+        - task
+      parameters:
+        - name: offset
+          in: query
+          description: page pagination
+          required: false
+          default: 1
+          schema:
+            type: number
+            example: "offset"
+      responses:
+        200:
+          description: get tasks with pagination and a page limit of 50 elements, if the user is logged in, a new “isSolved” field will appear in the tasks element and will have a value of true or false
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  currentPage:
+                    type: number,
+                    example: 1
+                  totalPages:
+                    type: number,
+                    example: 2
+                  totalTasks:
+                    type: number,
+                    example: 100
+                  tasks:
+                    type: array
+                    example:
+                      - id: "taskId"
+                        name: "Email address verification"
+                        description: "Write a regular expression that checks if an email address is correct"
+                        createdAt: "2021-01-01T12:00:00Z"
+                      - {}
+                      - {}
+                      - {}
+
+  /task/submit/{taskId}:
+    post:
+      tags:
+        - task
+      summary: submit task by id
+      parameters:
+        - name: taskId
+          in: path
+          description: "taskId"
+          required: true
+          schema:
+            type: string
+            format: taskId
+      requestBody:
+        description: add \ before \ example: \\. would be \\\\.
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                regexSubmit:
+                  type: string
+                  example: "^[a-zA-Z0-9]+@[a-z]+\\.[a-z]{2,3}$"
+      responses:
+        202:
+          description: Task has been successfully completed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Task has been successfully completed
+        400:
+          description: if not all the tests cases are passed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Test case failed
+                  testCase:
+                    type: string
+                    example: test@.com
+                  output:
+                    type: boolean
+                    example: true
+                  expected:
+                    type: boolean
+                    example: false
+
+  /task/get/all/testCases/{taskId}:
+    get:
+      tags:
+        - task
+      summary: get all task cases by id
+      parameters:
+        - name: taskId
+          in: path
+          description: "taskId"
+          required: true
+          schema:
+            type: string
+            format: taskId
+      responses:
+        200:
+          description: get the task successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  task:
+                    type: object
+                    properties:
+                      _id:
+                        type: string
+                        example: "taskId"
+                      name:
+                        type: string
+                        example: "Email address verification"
+                      description:
+                        type: string
+                        example: "Write a regular expression that checks if an email address is correct"
+                      createdAt:
+                        type: string
+                        format: date-time
+                        example: "2021-01-01T12:00:00Z"
+                      updatedAt:
+                        type: string
+                        format: date-time
+                        example: "2021-01-01T12:00:00Z"
+                      exampleTestCases:
+                        type: array
+                        example:
+                          - testCase: "email@example.com"
+                            output: true
+                            description: "thi email is valid"
+                          - testCase: "email@.com"
+                            output: true
+                            description: "thi email is invalid"
+                      testCases:
+                        type: array
+                        example: 
+                          - testCase: email@example.com
+                            output: true
+                          - testCase: emailexample.com
+                            output: false
+                          - testCase: email@.com
+                            output: true
+                          - {}
+                          - {}
+                          - {}
+        403:
+          description: only a user with the Admin role can get all test cases
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+                    example: You don't have enough rights
+      
+
+  /task/update/{taskId}:
+    put:
+      tags:
+        - task
+      summary: update task by id
+      parameters:
+        - name: taskId
+          in: path
+          description: "taskId"
+          required: true
+          schema:
+            type: string
+            format: taskId
+      requestBody:
+        required: true
+        description: add a task and update some fields
+        content:
+          application/json:
+            schema:
+              properties:
+                name:
+                  type: string
+                  example: "Email address verification 'new name'"
+                description:
+                  type: string
+                  example: "Write a regular expression that checks if an email address is correct"
+                exampleTestCases:
+                  type: array
+                  example:
+                    - testCase: "email@example.com"
+                      output: "true"
+                      description: "thi email is valid"
+                    - testCase: "email@.com"
+                      output: "true"
+                      description: "thi email is invalid"
+                testCases:
+                  type: array
+                  example:
+                    - testCase: "test@example.com"
+                      output: true
+                    - testCase: "testexample.com"
+                      output: false
+                    - testCase: "test@.com"
+                      output: false
+                    - testCase: "test@exapmle"
+                      output: false
+                    - testCase: "123testEmail@exapmle.com"
+                      output: true
+                    - testCase: "test@exapmle.a"
+                      output: false
+                    - testCase: "test@exapmle.aaaaaaaaaaaaa"
+                      output: false
+                    - testCase: "@exapmle.com"
+                      output: false
+      responses:
+        200:
+          description: Task has been successfully updated
+          content:
+            application/json:
+              schema:
+                properties:
+                  massage:
+                    type: string
+                    example: "Task has been successfully updated"
+        403:
+          description: only a user with the Admin role can update a task
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+                    example: You don't have enough rights
+
+  /user/profile/{userId}:
+    get:
+      tags:
+        - user
+      summary: get user profile by id
+      parameters:
+        - name: userId
+          in: path
+          description: "user id"
+          required: true
+          schema:
+            type: string
+            format: userId
+      responses:
+        200:
+          description: get the user successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    type: object
+                    properties:
+                      _id:
+                        type: string
+                        example: "userId"
+                      name:
+                        type: string
+                        example: "user name"
+                      email:
+                        type: string
+                        example: "user email"
+                      createdAt:
+                        type: string
+                        format: date-time
+                        example: "2021-01-01T12:00:00Z"
+                      updatedAt:
+                        type: string
+                        format: date-time
+                        example: "2021-01-01T12:00:00Z"
+                      role:
+                        type: string
+                        example: "User"
+                      solvedTasks:
+                        type: array
+                        example:
+                          - id: "task id 1"
+                            name: "task name 1"
+                          - id: "task id 2"
+                            name: "task name 2"
+
+  /user/profile:
+    get:
+      tags:
+        - user
+      summary: get your profile using the jwt token
+      responses:
+        200:
+          description: get profile successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    type: object
+                    properties:
+                      _id:
+                        type: string
+                        example: "userId"
+                      name:
+                        type: string
+                        example: "user name"
+                      email:
+                        type: string
+                        example: "user email"
+                      createdAt:
+                        type: string
+                        format: date-time
+                        example: "2021-01-01T12:00:00Z"
+                      updatedAt:
+                        type: string
+                        format: date-time
+                        example: "2021-01-01T12:00:00Z"
+                      role:
+                        type: string
+                        example: "User"
+                      solvedTasks:
+                        type: array
+                        example:
+                          - id: "task id 1"
+                            name: "task name 1"
+                          - id: "task id 2"
+                            name: "task name 2"
+
+  /user/update/profile:
+    put:
+      tags:
+        - user
+      summary: update user profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                name:
+                  type: string
+                  example: "new user name"
+                email:
+                  type: string
+                  example: "new user email"
+      responses:
+        200:
+          description: User profile has been successfully updated
+          content:
+            application/json:
+              schema:
+                properties:
+                  massage:
+                    type: string
+                    example: User profile has been successfully updated
+                  updatedUser:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                        example: "user name"
+                      email:
+                        type: string
+                        example: "user email"
+                      updatedAt:
+                        type: string
+                        format: date-time
+                        example: "2021-01-01T12:00:00Z"
+
+  /user/change/password:
+    put:
+      tags:
+        - user
+      summary: change user password
+      description: the old password and the new password must not be the same
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                oldPassword:
+                  type: string
+                  example: "example old password"
+                newPassword:
+                  type: string
+                  example: "example new password"
+      responses:
+        200:
+          description: "Password was successfully update"
+          content:
+            application/json:
+              schema:
+                properties:
+                  massage:
+                    type: string
+                    example: "Password has been successfully updated"
+
+  /user/delete/account:
+    delete:
+      tags:
+        - user
+      summary: delete user account
+      description: delete user account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                password:
+                  type: string
+                  example: "user current password"
+      responses:
+        200:
+          description: "Account has been successfully deleted"
+          content:
+            application/json:
+              schema:
+                properties:
+                  massage:
+                    type: string
+                    example: "Account has been successfully deleted"

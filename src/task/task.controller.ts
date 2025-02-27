@@ -49,7 +49,6 @@ export class TaskController {
 
   @UseGuards(AuthGuard)
   @Post("submit/:taskId")
-  @HttpCode(202)
   async submitTask(
     @Body("submitRegex") submitRegex: string,
     @Param("taskId") taskId: string,
