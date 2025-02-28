@@ -43,6 +43,10 @@ export class TaskService {
   }
 
   async getTaskById(taskId: string) {
+    if (!Types.ObjectId.isValid(taskId)) {
+      throw new BadRequestException("Invalid task id");
+    }
+
     const task: TaskDocument | null = await this.taskModel.findOne(
       { _id: taskId },
       {
@@ -156,6 +160,10 @@ export class TaskService {
   }
 
   async getTaskWithAllTestCasesById(taskId: string) {
+    if (!Types.ObjectId.isValid(taskId)) {
+      throw new BadRequestException("Invalid task id");
+    }
+
     const task: TaskDocument | null = await this.taskModel.findOne({
       _id: taskId,
     });
@@ -168,10 +176,16 @@ export class TaskService {
   }
 
   async updateTask(taskDto: TaskDto, taskId: string) {
+    if (!Types.ObjectId.isValid(taskId)) {
+      throw new BadRequestException("Invalid task id");
+    }
+
     const task: TaskDocument | null = await this.taskModel.findById(taskId);
 
     if (task == null) {
       throw new NotFoundException("Task not found");
+    } else if (task.name == taskDto.name) {
+      throw new BadRequestException("Task with this name already exists");
     }
 
     await this.taskModel.updateOne({ _id: taskId }, taskDto);
