@@ -1,0 +1,29 @@
+services:
+  app:
+    build: .
+    container_name: main_app
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mongo
+    networks:
+      - main_network
+    env_file:
+      - .env
+
+  mongo:
+    image: mongo:latest
+    container_name: mongoRegex
+    ports:
+      - "27017:27017"
+    networks:
+      - main_network
+    volumes:
+      - mongo_data:/data/db
+
+networks:
+  main_network:
+    driver: bridge
+
+volumes:
+  mongo_data: {}
